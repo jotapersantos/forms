@@ -1,0 +1,8 @@
+﻿/*Style Bundle Custom*/
+.fc-event {
+    cursor: pointer;
+}
+
+.daterangepicker {
+    z-index: 1056;
+}

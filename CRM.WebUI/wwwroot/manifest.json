@@ -1,0 +1,17 @@
+{
+  "name": "Connect.el",
+  "short_name": "Connect.el",
+  "description": "Connect.el",
+  "icons": [
+    {
+      "src": "/img/logos/logo-el-colorida.png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/img/logos/logo-el-colorida.png",
+      "sizes": "512x512"
+    }
+  ],
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -1,0 +1,24 @@
+﻿@model CRM.WebUI.ViewModels.Home.HomeViewModel
+
+@{
+    ViewData["Title"] = "Início";
+}
+
+<style>
+.custom-text-gray {
+    color: #656565
+}
+</style>
+
+<div class="toolbar mb-5">
+    
+    <div class="page-title d-flex flex-column me-3">
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+            <li class="breadcrumb-item text-gray-600">
+                Início
+            </li>
+        </ul>
+    </div>    
+</div>

@@ -1,0 +1,6 @@
+﻿.form-switch-label {
+	margin-left: .55rem;
+	font-size: 1.05rem;
+	font-weight: 500;
+	color: var(--bs-gray-800);
+}

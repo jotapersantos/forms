@@ -1,0 +1,31 @@
+﻿@using CRM.Domain.Enums
+@model CRM.WebUI.ViewModels.Formularios.AlternativaDaPerguntaComTipoVM
+
+@{
+    var alternativaId = Guid.NewGuid();
+}
+
+<div class="mb-5" data-formulario-modelo="alternativa" data-id="@alternativaId" data-pergunta-id="@Model.PerguntaIndex">
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas[@Model.PerguntaIndex].Alternativas.Index" value="@alternativaId" />
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas[@Model.PerguntaIndex].Alternativas[@alternativaId].Ordem" value="1" />
+    <div class="w-100 d-flex flex-row align-items-center">
+        <div class="btn px-1 me-2" data-formulario-modelo="alternativa-handle" style="cursor: move">
+            <i class="fa-light fa-grip-dots-vertical"></i>
+        </div>
+        <div class="form-check form-check-custom form-check-solid me-2">
+            <input type="radio" class="form-check-input border border-dark" disabled value="" />
+            <label class="form-label"></label>
+        </div>
+        <input class="form-control w-lg-100 maxlength me-2" id="Secoes[@Model.SecaoIndex].Perguntas[@Model.PerguntaIndex].Alternativas[@alternativaId].Texto"
+               name="Secoes[@Model.SecaoIndex].Perguntas[@Model.PerguntaIndex].Alternativas[@alternativaId].Texto" data-val="true"
+               data-val-required="O campo Texto é obrigatório."
+               data-val-length="O campo Texto deve ter entre 3 e 255 caracteres"
+               data-val-length-max="255"
+               data-val-length-min="3"
+               maxlength="255" />
+        <button type="button" data-formulario-modelo="button-remover-alternativa" class="btn btn-outline btn-outline-danger btn-icon border border-0" onclick="formularioModeloCadastro.removerAlternativa('@alternativaId')">
+            <span class="fa-light fa-xmark fa-lg"></span>
+        </button>
+    </div>
+    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@Model.SecaoIndex].Perguntas[@Model.PerguntaIndex].Alternativas[@alternativaId].Texto" data-valmsg-replace="true"></span>
+</div>

@@ -1,0 +1,51 @@
+﻿@using CRM.WebUI.ViewModels.Formularios
+@model Guid
+
+<div data-formulario-modelo="secao" data-id="@Model" class="mb-5">
+    <input type="hidden" name="Secoes.Index" value="@Model" />
+    <input type="hidden" name="Secoes[@Model].Ordem" value="1"/>
+    <section class="card mb-3">
+        <header class="card-header bg-primary d-none" data-formulario-modelo="secao-cabecalho">
+            <div class="card-title m-0">
+                <h5 class="fw-bold m-0 text-light" data-formulario-modelo="secao-titulo">Seção 1</h5>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-sm btn-outline btn-outline-primary me-1" onclick="formularioModeloCadastro.abrirModalParaOrdenarPerguntas('@Model')">
+                    <i class="fa-light fa-arrow-down-arrow-up"></i>
+                    Ordenar Perguntas
+                </button>
+                <button type="button" class="btn btn-sm btn-outline btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-light fa-plus"></i>
+                    Nova Pergunta
+                </button>
+                <div class="dropdown-menu" role="menu">
+                    <button type="button" onclick="formularioModeloCadastro.addPergunta('@Model', 'TextoCurto')" class="dropdown-item text-1">Texto Curto</button>
+                    <button type="button" onclick="formularioModeloCadastro.addPergunta('@Model', 'TextoLongo')" class="dropdown-item text-1">Texto Longo</button>
+                    <button type="button" onclick="formularioModeloCadastro.addPergunta('@Model', 'MultiplaEscolha')" class="dropdown-item text-1">Múltipla Escolha</button>
+                    <button type="button" onclick="formularioModeloCadastro.addPergunta('@Model', 'CaixaSelecao')" class="dropdown-item text-1">Caixa de Seleção</button>
+                    <button type="button" onclick="formularioModeloCadastro.addPergunta('@Model', 'ListaSuspensa')" class="dropdown-item text-1">Lista Suspensa</button>
+                </div>
+                <button type="button" data-formulario-modelo="button-remover-secao" class="btn btn-sm btn-outline btn-outline-danger ms-1" onclick="formularioModeloCadastro.removerSecao('@Model')">
+                    <i class="fa-light fa-minus"></i>
+                    Remover Seção
+                </button>
+            </div>
+            <div class="form-group row mb-5">
+                <div class="col-12">
+                    <label for="Secoes[@Model].Titulo" class="form-label">Título</label>
+                    <input type="text" name="Secoes[@Model].Titulo" class="form-control maxlength" data-val="true"
+                           data-val-length="O campo Título da seção deve ter no máximo 250 caracteres"
+                           data-val-length-max="250"
+                           maxlength="250" />
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@Model].Titulo" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div data-formulario-modelo="pergunta-container">
+        <partial name="_MultiplaEscolha.cshtml" model='new PerguntaComTipoVM{ SecaoIndex = Model, Tipo = "MultiplaEscolha"}' />
+    </div>
+</div>

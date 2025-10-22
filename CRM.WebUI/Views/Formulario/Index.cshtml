@@ -1,0 +1,291 @@
+﻿@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Formulários";
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Cadastros
+            </li>
+
+            <li class="breadcrumb-item text-gray-500">
+                Formularios
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="content flex-column-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title m-0">
+                <h2 class="fw-bold m-0">
+                    @ViewData["Title"]
+                </h2>
+            </div>
+
+            <div class="d-flex align-items-center py-2 py-md-1">
+                <a class="btn btn-primary" asp-controller="Formulario" asp-action="Create">Novo</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="d-flex flex-stack mb-5">
+                        <div class="d-flex align-items-center position-relative my-1">
+                            <i class="fa-light fa-magnifying-glass fs-2 position-absolute ms-6"></i>
+                            <input type="text" data-kt-docs-table-filter="search" class="form-control form-control-solid w-250px ps-15" placeholder="Pesquisar" />
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="datatable" class="table table-rounded table-striped border gy-7 gs-7">
+                            <thead>
+                                <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+                                    <th scope="col" class="text-left">Nome</th>
+                                    <th scope="col" class="text-left">Modelo Utilizado</th>
+                                    <th scope="col" class="text-center">Período</th>
+                                    <th scope="col" class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" data-modal="modal" data-bs-focus="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/components/modelo/modal.preview-modelo.js"></script>
+
+    <script>
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toastr-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "1500",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    </script>
+    <script>
+
+        function excluirFormulario(formularioId){
+            Swal.fire({
+                title: "Você tem certeza que deseja excluir o formulário?",
+                text: "Cuidado! Esse processo é irreversível.",
+                icon: "question",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Sim, excluir!",
+                cancelButtonText: "Não, cancelar.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                    cancelButton: "btn btn-primary"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DeleteConfirmed", "Formulario", new { id = Guid.Empty })'.replace('@Guid.Empty', formularioId),
+                        headers: {
+                            '@tokenSet.HeaderName': '@tokenSet.RequestToken'
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            let messageComplete = "";
+                            for (let message of response.messages) {
+                                messageComplete += message;
+                            }
+                            if (response.isSuccess === true) {
+                                toastr.success(messageComplete, { timeOut: 1500 });
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                throw new Error(messageComplete);
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log(thrownError);
+                            toastr.error(thrownError, { timeOut: 3000 });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+    <script>
+        var KTDatatablesServerSide = function () {
+            var table;
+            var dt;
+
+            var initDatatable = function () {
+                dt = $("#datatable").DataTable({
+                    language: {
+                        url: '/terceiros/datatable/dist/json/pt_br.json',
+                        lengthMenu: "Show _MENU_",
+                    },
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    searching: true,
+                    ajax: {
+                        url: '@Url.Action("ObterFormularios", "Formulario")',
+                        type: "POST",
+                    },
+                    columns: [
+                        { "data": "nome" },
+                        { "data": "modelo" },
+                        { "data": null },
+                        { "data": { "id": "id", "modeloId": "modelo.id"} }
+                    ],
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            targets: [0, 1, 2, 3],
+                        },
+
+                        {
+                            "targets": 1,
+                            "render": function (data, type, row, meta) {
+                                return `<div class="text-left">${data.titulo}</div> `;
+                            }
+                        },
+                        {
+                            "targets": 2,
+                            "render": function (data, type, row, meta) {
+                                return `<div class="text-center">${getPeriodoFormatado(row.dataInicio, row.dataTermino)}</div> `;
+                            }
+                        },                        
+                        {
+                            "targets": 3,
+                            "render": function (data, type, row, meta) {
+                                const urlResponderFormulario = '@Url.Action("Responder", "Formulario", new { id = Guid.Empty })'.replace('@Guid.Empty', data.id);
+                                const urlPreviewModelo = '@Url.Action("OnGetPreview", "Modelo", new { id = Guid.Empty })'.replace('@Guid.Empty', data.modeloId);
+                                const urlVisualizarRespostas = '@Url.Action("RespostasDetalhadas", "Formulario", new { id = Guid.Empty })'.replace('@Guid.Empty', data.id);
+                                const urlEditarFormulario = '@Url.Action("Edit", "Formulario", new { id = Guid.Empty })'.replace('@Guid.Empty', data.id);
+                                return ` <div class="d-flex justify-content-center">
+                                            <a class="btn btn-outline btn-outline-primary border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                href="${urlEditarFormulario}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Editar">
+                                                <span class="fa-light fa-pen-to-square fa-lg"></span>
+                                            </a>
+
+                                            <button class="btn btn-outline btn-outline-primary border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                onclick="modalPreviewModelo.abrir('${urlPreviewModelo}')"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Detalhar">
+                                                <span class="fa-light fa-eye fa-lg"></span>
+                                            </button>
+
+                                            <button class="btn btn-outline btn-outline-info border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                onclick="copiarUrlResponderFormulario('${urlResponderFormulario}')"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Copiar Url do formulário">
+                                                <span class="fa-light fa-clipboard fa-lg"></span>
+                                            </button>
+                                                    <a class="btn btn-outline btn-outline-primary border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                        href="${urlVisualizarRespostas}"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-animation="true"
+                                                        data-bs-placement="top"
+                                                        title="Ver Respostas">
+                                                        <span class="fa-light fa-ballot-check fa-lg"></span>
+                                                    </a>
+                                            <button class="btn btn-outline btn-outline-danger border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                onclick="excluirFormulario('${data.id}')"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Excluir">
+                                                <span class="fa-light fa-trash-can fa-lg"></span>
+                                            </button>
+                                        </div>`;
+                            }
+                        }
+                    ],
+                });
+
+                table = dt.$;
+
+                dt.on('draw', function () {
+                    KTMenu.createInstances();
+                });
+            }
+
+            var handleSearchDatatable = function () {
+                const filterSearch = document.querySelector('[data-kt-docs-table-filter="search"]');
+                filterSearch.addEventListener('keyup', function (e) {
+                    dt.search(e.target.value).draw();
+                });
+            }
+
+            return {
+                init: function () {
+                    initDatatable();
+                    handleSearchDatatable();
+                }
+            }
+        }();
+
+        KTUtil.onDOMContentLoaded(function () {
+            KTDatatablesServerSide.init();
+        });
+
+        function getPeriodoFormatado(dateInicio, dateTermino) {
+            if (!dateTermino) {
+                return getFormmatedDate(dateInicio);
+            }
+
+            return `${getFormmatedDate(dateInicio)} - ${getFormmatedDate(dateTermino)}`;
+        }
+
+        function getFormmatedDate(dateString) {
+            return moment(dateString).format("DD/MM/YYYY HH:mm");
+        }
+
+        function copiarUrlResponderFormulario(url){
+            const urlOrigin = new URL(window.location.href).origin;
+            const urlCompleta = `${urlOrigin}${url}`
+            navigator.clipboard.writeText(urlCompleta);
+            toastr.success("Url do formulário foi copiada com sucesso para a área de transferência.", { timeOut: 1500 });
+        }
+    </script>
+}

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <Compile Remove="Dtos\Galerias\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <EmbeddedResource Remove="Dtos\Galerias\**" />
+    <None Remove="bin\**" />
+    <None Remove="Dtos\Galerias\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.SmartEnum" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CRM.Domain.Common\CRM.Domain.Common.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,124 @@
+﻿@* @using CRM.Application.DTOs.Formularios;
+@using CRM.Application.DTOs.Formularios.Respostas
+@model CRM.Application.DTOs.Shared.PagedResultDto<FormularioSecaoItemRespondidoComRespostasDTO>
+
+@{
+    var itemRespondido = Model.List.First();
+    var itemRespostas = itemRespondido.ItemRespostas;
+    var contador = 1;
+}
+
+@functions {
+    void ExibirOpcaoMultiplaEscolha(string opcaoTexto, bool marcado = false)
+    {
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                <div class="form-check form-check-custom form-check-solid">
+                    <input class="form-check-input me-2" type="radio" disabled="" style="cursor: default !important" @(marcado == true ? "checked" : "")>
+                    <label class="text-dark" style="cursor: default !important">@opcaoTexto</label>
+                </div>
+            </div>
+        </div>
+    }
+
+    void ExibirOpcaoCaixaSelecao(string opcaoTexto, bool marcado = false)
+    {
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                <div class="form-check form-check-custom form-check-solid">
+                    <input class="form-check-input me-2" type="checkbox" disabled="" style="cursor: default !important" @(marcado == true ? "checked" : "") />
+                    <label class="text-dark" style="cursor: default !important">@opcaoTexto</label>
+                </div>
+            </div>
+        </div>
+    }
+
+    void ExibirOpcaoListaSuspensa(string opcaoTexto, int? indice = null)
+    {
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                @(indice != null ? $"{indice}. " : "") @opcaoTexto
+            </div>
+        </div>
+    }
+}
+
+<div class="d-flex justify-content-center align-items-center w-100 bg-white mb-3 py-2">
+    <button class="btn @(Model.PageIndex == 1 ? "disabled" : "") border border-0 me-1" @(Model.PageIndex == 1 ? "" : Html.Raw($"onclick='formularioRespostas.abrirPerguntasRespostasPainel({Model.PageIndex - 1})'"))>
+        <i class="fa-light fa-angle-left fa-lg"></i>
+    </button>
+    <input type="number" name="Model" class="form-control text-center me-2" value="@Model.PageIndex" min="1" max="@Model.TotalPages" style="width: 70px" @(Model.TotalPages == 1 ? "" : Html.Raw($"onchange='formularioRespostas.abrirPerguntasRespostasPainel(this.value)'")) />
+    <span class="me-1">
+        de @Model.TotalPages
+    </span>
+    <button class="btn @(Model.PageIndex == Model.EndPage ? "disabled" : "") border border-0" @(Model.PageIndex == Model.EndPage ? "" : Html.Raw($"onclick='formularioRespostas.abrirPerguntasRespostasPainel({Model.PageIndex + 1})'"))>
+        <i class="fa-light fa-angle-right fa-lg"></i>
+    </button>
+</div>
+<section class="card mb-5">
+    <header class="card-header">
+        <div class="card-title m-0">
+            <h5 class="fw-bold @(itemRespondido.Obrigatorio == true ? "required" : "") m-0">
+                @itemRespondido.Pergunta
+            </h5>
+        </div>
+    </header>
+    @if(itemRespondido.Tipo != "TextoCurto" && itemRespondido.Tipo != "TextoLongo")
+    {
+        <div class="card-body">
+            @foreach (var opcao in itemRespondido.Opcoes)
+            {
+                switch (itemRespondido.Tipo)
+                {
+                    case "MultiplaEscolha":
+                        ExibirOpcaoMultiplaEscolha(opcao);
+                        break;
+                    case "CaixaSelecao":
+                        ExibirOpcaoCaixaSelecao(opcao);
+                        break;
+                    case "ListaSuspensa":
+                        ExibirOpcaoListaSuspensa(opcao, contador);
+                        break;
+                }
+                contador++;
+            }
+        </div>
+    }
+</section>
+
+@foreach (var itemResposta in itemRespostas)
+{
+    var totalRespostas = itemResposta.TotalRespostas;
+    @if (totalRespostas > 0)
+    {
+        <section class="card mb-3">
+            <div class="card-body">
+                @switch (itemRespondido.Tipo)
+                {
+                    case "MultiplaEscolha":
+                        ExibirOpcaoMultiplaEscolha(@itemResposta.OpcaoTextoResposta, true);
+                        break;
+                    case "CaixaSelecao":
+                        ExibirOpcaoCaixaSelecao(@itemResposta.OpcaoTextoResposta, true);
+                        break;
+                    case "ListaSuspensa":
+                        ExibirOpcaoListaSuspensa(@itemResposta.OpcaoTextoResposta);
+                        break;
+                    default:
+                        <p class="text-5 mb-3">@itemResposta.TextoResposta</p>
+                        break;
+                }
+                <span class="fw-bold">@totalRespostas @(totalRespostas > 1 ? "respostas" : "resposta")</span>
+            </div>
+        </section>
+    }
+    else if (totalRespostas == 0 && (itemRespondido.Tipo == "TextoCurto" || itemRespondido.Tipo == "TextoLongo"))
+    {
+        <section class="card mb-3">
+            <div class="card-body">
+                <div class="mb-3"></div>
+                <span class="fw-bold">@totalRespostas @(totalRespostas > 1 ? "respostas" : "resposta")</span>
+            </div>
+        </section>
+    }
+} *@

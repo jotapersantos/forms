@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+		<UserSecretsId>e66e8933-5301-4b4f-86f2-4a685f359e0d</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+		<PackageReference Include="WebEssentials.AspNetCore.PWA" Version="1.0.85" />
+		<ProjectReference Include="..\CRM.Contracts\CRM.Contracts.csproj" />
+		
+		<ProjectReference Include="..\CRM.Infra.IoC\CRM.Infra.IoC.csproj" />
+
+		<Reference Include="System.ServiceModel" />
+
+		<WCFMetadata Include="Connected Services" />
+
+		<None Update="wwwroot\**\*">
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
+</Project>

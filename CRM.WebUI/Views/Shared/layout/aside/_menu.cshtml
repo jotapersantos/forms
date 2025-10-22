@@ -1,0 +1,45 @@
+<div class="hover-scroll-overlay-y mh-100 my-5" id="kt_aside_menu_wrapper" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_header, #kt_aside_footer" data-kt-scroll-wrappers="#kt_aside, #kt_aside_menu" data-kt-scroll-offset="{default: '5px', lg: '75px'}">
+
+    <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6" id="#kt_aside_menu" data-kt-menu="true">
+
+        <div class="menu-item">
+            <a class="menu-link" asp-controller="Home" asp-action="Index">
+                <span class="menu-heading fw-bold text-uppercase fs-7">Início</span>
+            </a>
+        </div>
+
+        <div class="menu-item">
+            <div class="menu-content pt-8 pb-2">
+                <span class="menu-heading fw-bold text-uppercase fs-7">Formulário</span>
+            </div>
+        </div>
+
+        <div class="menu-item menu-accordion" data-kt-menu-trigger="click">
+            <span class="menu-link">
+                <span class="menu-icon">
+                    <i class="fa-light fa-list-check fs-4"></i>
+                </span>
+                <span class="menu-title">Formulários</span><span class="menu-arrow"></span>
+            </span>
+
+            <div class="menu-sub menu-sub-accordion" style="display: none; overflow: hidden;">
+                <div class="menu-item">
+                    <a class="menu-link" asp-controller="Modelo" asp-action="Index">
+                        <span class="menu-bullet">
+                            <span class="bullet bullet-dot"></span>
+                        </span><span class="menu-title">Modelos</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="menu-link" asp-controller="Formulario" asp-action="Index">
+                        <span class="menu-bullet">
+                            <span class="bullet bullet-dot"></span>
+                        </span>
+                        <span class="menu-title">Formulários</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

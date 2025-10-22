@@ -1,0 +1,92 @@
+﻿@model CRM.WebUI.ViewModels.Formularios.Modelos.ModeloCadastroVM
+@using CRM.Domain.Enums
+@using System.ComponentModel.DataAnnotations
+
+@{
+    ViewData["Title"] = "Novo Modelo de Formulário";
+}
+
+<style>
+    .draggable-source--is-dragging {
+        visibility: hidden;
+    }
+</style>
+
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Cadastro
+            </li>
+
+            <li class="breadcrumb-item text-gray-600">
+                Modelos de Formulários
+            </li>
+
+            <li class="breadcrumb-item text-gray-500">
+                Novo
+            </li>
+        </ul>
+    </div>
+    <div class="d-flex align-items-center py-2 py-md-1">
+        <a class="btn btn-outline btn-outline-light-dark btn-outline-default btn-active-secondary" asp-controller="Modelo" asp-action="Index">Voltar</a>
+    </div>
+</div>
+
+<form asp-action="Create" asp-controller="Modelo" method="post" data-formulario-modelo="formulario">
+    <section class="card mb-3">
+        <div class="card-body">
+            <div class="form-group row mb-5">
+                <div class="d-flex justify-content-end">
+                    <div class="form-check form-switch form-check-custom form-check-solid">
+                        <label class="form-check-label me-2" asp-for="Ativo"></label>
+                        <input class="form-check-input h-30px w-50px" type="checkbox" asp-for="Ativo" checked/>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Titulo" class="form-label required"></label>
+                    <input asp-for="Titulo" class="form-control maxlength" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="d-flex flex-wrap flex-stack mb-6">
+        <h4 class="fw-bold my-2">Seções</h4>
+        <button type="button" onclick="formularioModeloCadastro.addSecao()" class="btn btn-sm btn-primary">
+            <i class="fa fa-light fa-plus"></i>
+            Nova Seção
+        </button>
+    </div>
+
+    <div class="mb-5" data-formulario-modelo="secao-container">
+        <partial name="_Secao.cshtml" model="@Guid.NewGuid()" />
+    </div>
+    <footer class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary">
+            Salvar Formulário
+        </button>
+    </footer>
+</form>
+
+@section Scripts {
+    <!--Specific vendors-->
+    <script src="~/assets/plugins/custom/draggable/draggable.bundle.js"></script>
+
+    <!--Custom libs-->
+    <script src="~/js/components/formulario/formulario-modelo-cadastro.js"></script>
+    <script src="~/js/components/formulario/modal.ordernar-perguntas-modelo.js"></script>
+
+    <script>
+        formularioModeloCadastro.inicializar(
+            '@Url.Action("OnGetSecaoPartial", "Modelo")',
+            '@Url.Action("OnGetPerguntaPartial", "Modelo")',
+            '@Url.Action("OnGetAlternativaPartial", "Modelo")'
+        );
+    </script>
+}

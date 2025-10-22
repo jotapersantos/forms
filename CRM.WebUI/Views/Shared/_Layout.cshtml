@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>@ViewData["Title"] - Forms</title>
+    <meta charset="utf-8" />
+    <meta name="title" content="@ViewData["Title"] - Forms" />
+    <meta name="description" content="Forms" />
+    <meta name="keywords" content="Forms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="shortcut icon" href="~/favicon.ico" />
+
+    <link href="~/css/font-poppins.css" rel="stylesheet" />
+
+    <link href="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/spectrum-1.8.1/spectrum.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/site-custom.css" rel="stylesheet" type="text/css" />
+
+    <link href="~/lib/fontawesome6/pro/css/all.min.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        body {
+            font-family: Poppins,Helvetica,sans-serif;
+        }
+
+        [data-bs-theme="light"] .header {
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed" data-kt-app-page-loading-enabled="true" data-kt-app-page-loading="on">
+
+    <!--Page loading component-->
+    <div class="page-loader">
+        <div class="d-flex flex-column align-items-center justify-content-center">
+            <span class="spinner-border text-primary"></span>
+            <span class="pt-3">Carregando...</span>
+        </div>
+    </div>
+    <!--Page loading component-->
+
+    <main role="main">
+        <div class="d-flex flex-column flex-root">
+            <div class="page d-flex flex-row flex-column-fluid">
+                <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+
+                    <partial name="layout/_header" />
+
+                    <div class="d-flex flex-column-fluid">
+
+                        <partial name="layout/aside/_base" />
+
+                        <div class="d-flex flex-column flex-column-fluid container-fluid">
+                            <div class="content flex-column-fluid" id="kt_content">
+                                @RenderBody()
+                            </div>
+
+                            <partial name="layout/_footer" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <partial name="layout/_scrolltop" />
+
+    <script src="~/assets/plugins/global/plugins.bundle.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>
+    <script src="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/lib/spectrum-1.8.1/spectrum.js"></script>
+    <script src="~/lib/select2/i18n/pt-BR.js"></script>
+
+    <script src="~/src/js/layout/theme-mode.js"></script>
+    <script src="~/src/js/layout/theme-mode-user.js"></script>
+
+    <script>
+        KTUtil.onDOMContentLoaded(function () {
+            KTMenu.updateByLinkAttribute(window.location.pathname);
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

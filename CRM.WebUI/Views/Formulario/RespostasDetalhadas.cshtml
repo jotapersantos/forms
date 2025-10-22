@@ -1,0 +1,63 @@
+﻿@using CRM.Application.DTOs.Formularios.Modelos
+@model CRM.WebUI.ViewModels.Formularios.RespostasDetalhadasFormularioVM
+
+@{
+    ViewData["Title"] = "Respostas do Formulário";
+    var contadorRespostas = 0;
+}
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Formularios
+            </li>
+            <li class="breadcrumb-item text-gray-600">
+                Respostas
+            </li>
+        </ul>
+    </div>
+    <div class="d-flex align-items-center py-2 py-md-1">
+        <a class="btn btn-outline btn-outline-light-dark btn-outline-default btn-active-secondary" asp-controller="Formulario" asp-action="Index">Voltar</a>
+    </div>
+</div>
+
+
+<div class="row mb-1">
+    <div class="col-12">
+        <section class="card mb-3">
+            <header class="card-header">
+                <div class="card-title m-0">
+                    <h2 class="fw-bold m-0">
+                        @Model.FormularioNome
+                    </h2>
+                </div>
+            </header>
+            <div class="card-body d-flex flex-column">
+                <div class="col-12">
+                    <label class="form-label required">Resposta</label>
+                    <select id="avaliadoId" name="avaliadoId" class="form-control form-select" data-control="select2" data-allow-clear="true" data-placeholder="Selecione um avaliado" style="width: 100%" onchange="carregarGabaritoAvaliado.carregarGabaritoPorAvaliadoSelecionado(this)">
+                        <option></option>
+                        @foreach (var gabaritoId in Model.GabaritoIds)
+                        {
+                            contadorRespostas++;
+                            <option value="@gabaritoId">Resposta @contadorRespostas</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </section>
+        <div data-carregar-gabarito-avaliado="container">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/components/respostas/carregar-gabarito-avaliado.js"></script>
+    <script>
+        carregarGabaritoAvaliado.inicializar('@Url.Action("OnGetGabaritoComModeloPartial", "Formulario", new { id = Model.FormularioId, gabaritoId = Guid.Empty })', '@Model.ModeloId');
+    </script>
+}

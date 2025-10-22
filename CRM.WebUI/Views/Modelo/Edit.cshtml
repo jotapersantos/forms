@@ -1,0 +1,529 @@
+﻿@model CRM.WebUI.ViewModels.Formularios.Modelos.ModeloCadastroVM
+@using CRM.Domain.Enums
+@using System.ComponentModel.DataAnnotations
+@using CRM.WebUI.ViewModels.Formularios
+@using CRM.WebUI.ViewModels.Formularios.Modelos
+
+@{
+    ViewData["Title"] = "Editar Modelo de Formulário";
+}
+
+@functions {
+    string ObterNomeExibidoEnum(Enum value)
+    {
+        var campo = value.GetType().GetField(value.ToString());
+        var atributo = (DisplayAttribute)Attribute.GetCustomAttribute(campo, typeof(DisplayAttribute));
+        return atributo != null ? atributo.Name : value.ToString();
+    }
+
+    void ExibirPerguntaPorTipo(string tipo)
+    {
+        var tipoLabel = "";
+        switch (tipo)
+        {
+            case "TextoCurto":
+                tipoLabel = "Texto Curto";
+                break;
+            case "TextoLongo":
+                tipoLabel = "Texto Longo";
+                break;
+            case "MultiplaEscolha":
+                tipoLabel = "Múltipla Escolha";
+                break;
+            case "CaixaSelecao":
+                tipoLabel = "Caixa de Seleção";
+                break;
+            case "ListaSuspensa":
+                tipoLabel = "Lista Suspensa";
+                break;
+        }
+        <h4 class="fw-bold m-0">@tipoLabel</h4>
+    }
+
+    async Task CarregarEstruturaPerguntaPorTipo(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId, string itemTipo)
+    {
+        switch (itemTipo)
+        {
+            case "TextoCurto":
+                await CarregarPerguntaTextoCurto(pergunta, secaoIndex, perguntaId);
+                break;
+            case "TextoLongo":
+                CarregarPerguntaTextoLongo(pergunta, secaoIndex, perguntaId);
+                break;
+            case "MultiplaEscolha":
+                CarregarPerguntaMultiplaEscolha(pergunta, secaoIndex, perguntaId);
+                break;
+            case "CaixaSelecao":
+                CarregarPerguntaCaixaSelecao(pergunta, secaoIndex, perguntaId);
+                break;
+            case "ListaSuspensa":
+                CarregarPerguntaListaSuspensa(pergunta, secaoIndex, perguntaId);
+                break;
+        }
+    }
+
+    async Task CarregarPerguntaTextoCurto(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId)
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="form-control readonly text-muted user-select-none">Texto de resposta curta...</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 mb-3">
+                <label for="Secoes[@secaoIndex].Perguntas[@perguntaId].FormatoTexto">Formato do Texto</label>
+                <select name="Secoes[@secaoIndex].Perguntas[@perguntaId].FormatoTexto" class="form-select" data-plugin-selecttwo asp-items="@ObterSelectListFormatoTextoRespostaCurta(pergunta.TipoTexto)">
+                </select>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres" class="form-label">
+                            Quantidade de caracteres mínima no campo
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres"
+                               min="1" 
+                               max="250" 
+                               value="@pergunta.QuantidadeMinimaCaracteres"
+                               onchange="formularioModeloCadastro.validateQuantidadeMinimaCaracteres(this)"
+                               data-campo-quantidade-maxima="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres" />
+                        <span class="text-danger" style="display: none" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres"></span>
+
+                    </div>
+                    <div class="col-6">
+                        <label for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres" class="form-label">
+                            Quantidade de caracteres máxima no campo
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres" 
+                               min="1" 
+                               max="250"
+                               value="@pergunta.QuantidadeMaximaCaracteres"
+                               onchange="formularioModeloCadastro.validateQuantidadeMaximaCaracteres(this)"
+                               data-campo-quantidade-minima="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres" />
+                        <span class="text-danger" style="display: none" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres"></span>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    void CarregarPerguntaTextoLongo(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId)
+    {
+        <div class="row mb-3">
+            <div class="col-12 mb-3">
+                <div class="form-control readonly text-muted user-select-none">Texto de resposta longa...</div>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="Secoes[@secaoIndex].Perguntas[@perguntaId].TamanhoMinimoResposta" class="form-label">
+                            Quantidade de caracteres mínima no campo
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres" 
+                               min="1" 
+                               max="5000"
+                               value="@pergunta.QuantidadeMinimaCaracteres" 
+                               onchange="formularioModeloCadastro.validateQuantidadeMinimaCaracteres(this)"
+                               data-campo-quantidade-maxima="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres" />
+                        <span class="text-danger" style="display: none" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres"></span>
+                    </div>
+                    <div class="col-6">
+                        <label for="Secoes[@secaoIndex].Perguntas[@perguntaId].TamanhoMaximoResposta" class="form-label">
+                            Quantidade de caracteres máxima no campo
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres" 
+                               min="1" 
+                               max="5000"
+                               value="@pergunta.QuantidadeMaximaCaracteres" 
+                               onchange="formularioModeloCadastro.validateQuantidadeMaximaCaracteres(this)"
+                               data-campo-quantidade-minima="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMinimaCaracteres" />
+                        <span class="text-danger" style="display: none" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].QuantidadeMaximaCaracteres"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    void CarregarPerguntaMultiplaEscolha(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId)
+    {
+        <div class="d-flex justify-content-between align-items-center py-5">
+            <h5 class="fw-bold required">Alternativas</h5>
+            <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px" onclick="formularioModeloCadastro.addAlternativa('@perguntaId', '@secaoIndex', 'MultiplaEscolha')">
+                <i class="fa-light fa-plus"></i>
+                Nova Alternativa
+            </button>
+        </div>
+        <div data-formulario-modelo="alternativa-container">
+            @foreach (var alternativa in pergunta.Alternativas)
+            {
+                var alternativaId = Guid.NewGuid();
+                <div class="mb-3" data-formulario-modelo="alternativa" data-id="@alternativaId" data-pergunta-id="@perguntaId">
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas.Index" value="@alternativaId" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Ordem" value="@alternativa.Ordem" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Id" value="@alternativa.Id" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].PerguntaId" value="@alternativa.PerguntaId" />
+
+                    <div class="w-100 d-flex flex-row">
+                        <div class="btn px-1 me-2" data-formulario-modelo="alternativa-handle" style="cursor: move">
+                            <i class="fa-light fa-grip-dots-vertical"></i>
+                        </div>
+                        <div class="form-check form-check-custom form-check-solid me-2">
+                            <input type="radio" class="form-check-input border border-dark" disabled value="" />
+                            <label class="form-label"></label>
+                        </div>
+                        <input class="form-control w-lg-75 maxlength me-2" id="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               value="@alternativa.Texto" data-val="true"
+                               data-val-required="O campo Texto é obrigatório."
+                               data-val-length="O campo Texto deve ter entre 3 e 255 caracteres"
+                               data-val-length-max="255"
+                               data-val-length-min="3"
+                               maxlength="255" />
+                        <button type="button" data-formulario-modelo="button-remover-alternativa" class="btn btn-outline btn-outline-danger btn-icon border border-0" onclick="formularioModeloCadastro.removerAlternativa('@alternativaId')">
+                            <span class="fa-light fa-xmark fa-lg"></span>
+                        </button>
+                    </div>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto" data-valmsg-replace="true"></span>
+                </div>
+            }
+        </div>
+    }
+
+    void CarregarPerguntaCaixaSelecao(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId)
+    {
+        <div class="d-flex justify-content-between align-items-center py-5">
+            <h5 class="fw-bold required">Alternativas</h5>
+            <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px" onclick="formularioModeloCadastro.addAlternativa('@perguntaId', '@secaoIndex', 'CaixaSelecao')">
+                <i class="fa-light fa-plus"></i>
+                Nova Alternativa
+            </button>
+        </div>
+        <div data-formulario-modelo="alternativa-container">
+            @foreach (var opcao in pergunta.Alternativas)
+            {
+                var alternativaId = Guid.NewGuid();
+                <div class="mb-3" data-formulario-modelo="alternativa" data-id="@alternativaId" data-pergunta-id="@perguntaId">
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas.Index" value="@alternativaId" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Ordem" value="@opcao.Ordem" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Id" value="@opcao.Id" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].PerguntaId" value="@opcao.PerguntaId" />
+
+                    <div class="w-100 d-flex flex-row">
+                        <div class="btn px-1 me-2" data-formulario-modelo="alternativa-handle" style="cursor: move">
+                            <i class="fa-light fa-grip-dots-vertical"></i>
+                        </div>
+                        <div class="form-check form-check-custom form-check-solid me-2">
+                            <input type="checkbox" class="form-check-input border border-dark" disabled value="" />
+                            <label class="form-label"></label>
+                        </div>
+                        <input class="form-control w-lg-75 maxlength me-2" id="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               value="@opcao.Texto"
+                               data-val="true"
+                               data-val-required="O campo Texto é obrigatório."
+                               data-val-length="O campo Texto deve ter entre 3 e 255 caracteres"
+                               data-val-length-max="255"
+                               data-val-length-min="3"
+                               maxlength="255" />
+                        <button type="button" data-formulario-modelo="button-remover-alternativa" class="btn btn-outline btn-outline-danger btn-icon border border-0" onclick="formularioModeloCadastro.removerAlternativa('@alternativaId')">
+                            <span class="fa-light fa-xmark fa-lg"></span>
+                        </button>
+                    </div>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto" data-valmsg-replace="true"></span>
+                </div>
+            }
+        </div>
+    }
+
+    void CarregarPerguntaListaSuspensa(PerguntaCadastroVM pergunta, Guid secaoIndex, Guid perguntaId)
+    {
+        <div class="d-flex justify-content-between align-items-center py-5">
+            <h5 class="fw-bold required">Alternativas</h5>
+            <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px" onclick="formularioModeloCadastro.addAlternativa('@perguntaId', '@secaoIndex', 'ListaSuspensa')">
+                <i class="fa-light fa-plus"></i>
+                Nova Alternativa
+            </button>
+        </div>
+        <div data-formulario-modelo="alternativa-container">
+            @foreach (var alternativa in pergunta.Alternativas)
+            {
+                var alternativaId = Guid.NewGuid();
+                <div class="mb-3" data-formulario-modelo="alternativa" data-id="@alternativaId" data-pergunta-id="@perguntaId">
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas.Index" value="@alternativaId" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Ordem" value="@alternativa.Ordem" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Id" value="@alternativa.Id" />
+                    <input type="hidden" name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].PerguntaId" value="@alternativa.PerguntaId" />
+
+                    <div class="w-100 d-flex flex-row">
+                        <div class="btn px-1 me-2" data-formulario-modelo="alternativa-handle" style="cursor: move">
+                            <i class="fa-light fa-grip-dots-vertical"></i>
+                        </div>
+                        <input class="form-control w-lg-75 maxlength me-2" id="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               name="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto"
+                               value="@alternativa.Texto" data-val="true"
+                               data-val-required="O campo Texto é obrigatório."
+                               data-val-length="O campo Texto deve ter entre 3 e 255 caracteres"
+                               data-val-length-max="255"
+                               data-val-length-min="3"
+                               maxlength="255" />
+                        <button type="button" data-formulario-modelo="button-remover-alternativa" class="btn btn-outline btn-outline-danger btn-icon border border-0" onclick="formularioModeloCadastro.removerAlternativa('@alternativaId')">
+                            <span class="fa-light fa-xmark fa-lg"></span>
+                        </button>
+                    </div>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoIndex].Perguntas[@perguntaId].Alternativas[@alternativaId].Texto" data-valmsg-replace="true"></span>
+                </div>
+
+            }
+        </div>
+    }
+
+    List<SelectListItem> ObterSelectListFormatoTextoRespostaCurta(int? tipoTexto = null)
+    {
+        List<SelectListItem> selectListTipoTexto = new List<SelectListItem> { new SelectListItem { Text = "Sem Formatação", Value = "" } };
+        selectListTipoTexto.AddRange(ETipoTextoCurto.List.Select(e => new SelectListItem { Text = e.Name, Value = e.Value.ToString(), Selected = tipoTexto.HasValue && tipoTexto.Value == e.Value ? true : false }).ToList());
+        return selectListTipoTexto;
+    }
+}
+
+<style>
+    .draggable-source--is-dragging {
+        visibility: hidden;
+    }
+</style>
+
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Cadastro
+            </li>
+
+            <li class="breadcrumb-item text-gray-600">
+                Formulários
+            </li>
+
+            <li class="breadcrumb-item text-gray-500">
+                Editar
+            </li>
+        </ul>
+    </div>
+    <div class="d-flex align-items-center py-2 py-md-1">
+        <a class="btn btn-outline btn-outline-light-dark btn-outline-default btn-active-secondary" asp-controller="Modelo" asp-action="Index">Voltar</a>
+    </div>
+</div>
+
+<form asp-action="Edit" asp-controller="Modelo" asp-route-id="@Model.Id" method="post" data-formulario-modelo="formulario">
+    <section class="card mb-5">
+        <div class="card-body">
+            <div class="form-group row mb-5">
+                <div class="d-flex justify-content-end">
+                    <div class="form-check form-switch form-check-custom form-check-solid">
+                        <label class="form-check-label me-2" asp-for="Ativo"></label>
+                        <input class="form-check-input h-30px w-50px" type="checkbox" asp-for="Ativo" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Titulo" class="form-label required"></label>
+                    <input asp-for="Titulo" class="form-control maxlength" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="d-flex flex-wrap flex-stack mb-6">
+        <h4 class="fw-bold my-2">Seções</h4>
+        <button type="button" onclick="formularioModeloCadastro.addSecao()" class="btn btn-sm btn-primary">
+            <i class="fa fa-light fa-plus"></i>
+            Nova Seção
+        </button>
+    </div>
+    <div class="mb-5" data-formulario-modelo="secao-container">
+        @foreach (var secao in Model.Secoes)
+        {
+            var secaoId = Guid.NewGuid();
+            var contador = 1;
+            <div data-formulario-modelo="secao" data-id="@secaoId" class="mb-5" data-formulario-modelo-secao-ordenacao-ativa="false">
+                <input type="hidden" name="Secoes.Index" value="@secaoId" />
+                <input type="hidden" name="Secoes[@secaoId].ModeloId" value="@secao.ModeloId" />
+                <input type="hidden" name="Secoes[@secaoId].Id" value="@secao.Id" />
+                <input type="hidden" name="Secoes[@secaoId].Ordem" value="@secao.Ordem" />
+
+                <section class="card card-featured card-featured-primary mb-3">
+                    <header class="card-header bg-primary d-none" data-formulario-modelo="secao-cabecalho">
+                        <div class="card-title m-0">
+                            <h5 class="fw-bold m-0 text-light" data-formulario-modelo="secao-titulo">Seção @contador</h5>
+                        </div>
+                    </header>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline btn-outline-primary me-1" onclick="formularioModeloCadastro.abrirModalParaOrdenarPerguntas('@secaoId')">
+                                <i class="fa-light fa-arrow-down-arrow-up"></i>
+                                Ordenar Perguntas
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-light fa-plus"></i>
+                                Nova Pergunta
+                            </button>
+                            <div class="dropdown-menu" role="menu">
+                                <button type="button" onclick="formularioModeloCadastro.addPergunta('@secaoId', 'TextoCurto')" class="dropdown-item text-1">Texto Curto</button>
+                                <button type="button" onclick="formularioModeloCadastro.addPergunta('@secaoId', 'TextoLongo')" class="dropdown-item text-1">Texto Longo</button>
+                                <button type="button" onclick="formularioModeloCadastro.addPergunta('@secaoId', 'MultiplaEscolha')" class="dropdown-item text-1">Múltipla Escolha</button>
+                                <button type="button" onclick="formularioModeloCadastro.addPergunta('@secaoId', 'CaixaSelecao')" class="dropdown-item text-1">Caixa de Seleção</button>
+                                <button type="button" onclick="formularioModeloCadastro.addPergunta('@secaoId', 'ListaSuspensa')" class="dropdown-item text-1">Lista Suspensa</button>
+                            </div>
+
+                            <button type="button" data-formulario-modelo="button-remover-secao" class="btn btn-sm btn-outline btn-outline-danger ms-1" onclick="formularioModeloCadastro.removerSecao('@secaoId')">
+                                <i class="fa-light fa-minus"></i>
+                                Remover Seção
+                            </button>
+                        </div>
+                        <div class="form-group row mb-5">
+                            <div class="col-12">
+                                <label for="Secoes[@secaoId].Titulo" class="form-label">Título</label>
+                                <input type="text" name="Secoes[@secaoId].Titulo" class="form-control maxlength" data-val="true"
+                                       value="@secao.Titulo"
+                                       data-val-length="O campo Título da seção deve ter no máximo 250 caracteres"
+                                       data-val-length-max="250"
+                                       maxlength="250" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoId].Titulo" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div data-formulario-modelo="pergunta-container">
+                    @foreach (var pergunta in secao.Perguntas)
+                    {
+                        var perguntaId = Guid.NewGuid();
+                        <div class="mb-3" data-formulario-modelo="pergunta" data-id="@perguntaId" data-secao-id="@secaoId">
+                            <input type="hidden" name="Secoes[@secaoId].Perguntas.Index" value="@perguntaId" />
+                            <input type="hidden" name="Secoes[@secaoId].Perguntas[@perguntaId].Ordem" value="@pergunta.Ordem" />
+                            <input type="hidden" name="Secoes[@secaoId].Perguntas[@perguntaId].Tipo" value="@pergunta.Tipo" />
+                            <input type="hidden" name="Secoes[@secaoId].Perguntas[@perguntaId].Id" value="@pergunta.Id" />
+                            <input type="hidden" name="Secoes[@secaoId].Perguntas[@perguntaId].SecaoId" value="@pergunta.SecaoId" />
+
+                            <section class="card card-featured card-featured-left card-featured-primary">
+                                <header class="card-header">
+                                    <div class="w-100 d-flex justify-content-between align-items-center">
+                                        <div class="card-title m-0">
+                                            @{
+                                                ExibirPerguntaPorTipo(pergunta.Tipo);
+                                            }
+                                        </div>
+                                        <div class="d-flex align-items-center py-2 py-md-1">
+                                            <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px me-2" onclick="formularioModeloCadastro.duplicarPergunta('@perguntaId')">
+                                                <i class="fa-light fa-copy"></i>
+                                                Duplicar Pergunta
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline btn-outline-danger w-175px" onclick="formularioModeloCadastro.removerPergunta('@perguntaId')">
+                                                <i class="fa-light fa-minus"></i>
+                                                Remover Pergunta
+                                            </button>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        @if(pergunta.Tipo == "MultiplaEscolha" ||
+                                            pergunta.Tipo == "ListaSuspensa" ||
+                                            pergunta.Tipo == "CaixaSelecao")
+                                            {
+                                                <div class="col-12">
+                                                    <label for="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado" class="form-label required">Enunciado</label>
+                                                    <input id="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado"
+                                                           name="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado"
+                                                           class="form-control maxlength"
+                                                           value="@pergunta.Enunciado" data-val="true"
+                                                           data-val-required="O campo Enunciado é obrigatório."
+                                                           data-val-length="O campo Enunciado deve ter entre 3 e 255 caracteres"
+                                                           data-val-length-max="255"
+                                                           data-val-length-min="3"
+                                                           maxlength="255" />
+                                                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado" data-valmsg-replace="true"></span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12">
+                                                    <label for="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado" class="form-label required">Enunciado</label>
+                                                    <input id="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado"
+                                                           name="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado"
+                                                           class="form-control maxlength"
+                                                           value="@pergunta.Enunciado" data-val="true"
+                                                           data-val-required="O campo Enunciado é obrigatório."
+                                                           data-val-length="O campo Enunciado deve ter entre 3 e 255 caracteres"
+                                                           data-val-length-max="255"
+                                                           data-val-length-min="3"
+                                                           maxlength="255" />
+                                                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoId].Perguntas[@perguntaId].Enunciado" data-valmsg-replace="true"></span>
+                                                </div>
+                                            }
+
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <label for="Secoes[@secaoId].Perguntas[@perguntaId].Descricao" class="form-label">Descrição</label>
+                                            <textarea id="Secoes[@secaoId].Perguntas[@perguntaId].Descricao"
+                                                      name="Secoes[@secaoId].Perguntas[@perguntaId].Descricao"
+                                                      class="form-control autosize-custom maxlength" rows="1" data-val="true"
+                                                      data-val-length="O campo Descrição deve ter no máximo 1000 caracteres"
+                                                      data-val-length-max="1000"
+                                                      maxlength="1000">@pergunta.Descricao</textarea>
+                                            <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@secaoId].Perguntas[@perguntaId].Descricao" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+                                    @{
+                                        await CarregarEstruturaPerguntaPorTipo(pergunta, secaoId, perguntaId, pergunta.Tipo);
+                                    }
+                                </div>
+                                <footer class="card-footer d-flex justify-content-end">
+                                    <div class="form-check form-switch form-check-custom form-check-solid">
+                                        <label class="form-check-label me-2" for="Secoes[@secaoId].Perguntas[@perguntaId].Obrigatorio">Obrigatório</label>
+                                        <input class="form-check-input h-30px w-50px" type="checkbox" onchange="formularioModeloCadastro.toggleCheckboxValue(this)" id="Secoes[@secaoId].Perguntas[@perguntaId].Obrigatorio" name="Secoes[@secaoId].Perguntas[@perguntaId].Obrigatorio" value="@(pergunta.Obrigatorio == true ? "true" : "false")" @(pergunta.Obrigatorio == true ? "checked" : "") />
+                                    </div>
+                                </footer>
+                            </section>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    <footer class="d-flex justify-content-end">
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        <button type="submit" class="btn btn-primary">
+            Salvar Formulário
+        </button>
+    </footer>
+</form>
+
+@section Scripts {
+    <!--Specific vendors-->
+    <script src="~/assets/plugins/custom/draggable/draggable.bundle.js"></script>
+
+    <!--Custom libs-->
+    <script src="~/js/components/formulario/formulario-modelo-cadastro.js"></script>
+    <script src="~/js/components/formulario/modal.ordernar-perguntas-modelo.js"></script>
+
+    <script>
+        formularioModeloCadastro.inicializar(
+            '@Url.Action("OnGetSecaoPartial", "Modelo")',
+            '@Url.Action("OnGetPerguntaPartial", "Modelo")',
+            '@Url.Action("OnGetAlternativaPartial", "Modelo")'
+        );
+    </script>
+}

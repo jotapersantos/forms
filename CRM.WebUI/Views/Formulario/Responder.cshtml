@@ -1,0 +1,206 @@
+﻿@using CRM.Application.DTOs.Formularios.Modelos
+@model CRM.WebUI.ViewModels.Formularios.ResponderFormularioViewModel
+
+@{
+    ViewData["Title"] = "Responder Formulário";
+    var formularioModelo = Model.FormularioModelo;
+}
+
+@functions {
+    void ExibirCampoDeRespostaParaPergunta(PerguntaDTO pergunta)
+    {
+        switch (pergunta.Tipo)
+        {
+            case "TextoCurto":
+                ExibirCampoTextoCurto(pergunta.SecaoId, pergunta.Id, pergunta.Obrigatorio);
+                break;
+
+            case "TextoLongo":
+                ExibirCampoTextoLongo(pergunta.SecaoId, pergunta.Id, pergunta.Obrigatorio);
+                break;
+
+            case "MultiplaEscolha":
+                ExibirAlternativasMultiplaEscolha(pergunta.SecaoId, pergunta.Id, pergunta.Obrigatorio, pergunta.Alternativas);
+                break;
+
+            case "CaixaSelecao":
+                ExibirAlternativasCaixaSelecao(pergunta.SecaoId, pergunta.Id, pergunta.Obrigatorio, pergunta.Alternativas);
+                break;
+
+            case "ListaSuspensa":
+                ExibirAlternativasListaSuspensa(pergunta.SecaoId, pergunta.Id, pergunta.Obrigatorio, pergunta.Alternativas);
+                break;
+        }
+    }
+
+    void ExibirCampoTextoCurto(Guid formularioSecaoId, Guid perguntaId, bool obrigatorio)
+    {
+        <input class="form-control" type="text" id="Respostas[@perguntaId].Texto" name="Respostas[@perguntaId].Texto" onchange="respostasFormularioManager.validarPerguntaDoFormulario('@perguntaId')" />
+    }
+
+    void ExibirCampoTextoLongo(Guid formularioSecaoId, Guid perguntaId, bool obrigatorio)
+    {
+        <textarea class="form-control" rows="1" id="Respostas[@perguntaId].Texto" name="Respostas[@perguntaId].Texto" onchange="respostasFormularioManager.validarPerguntaDoFormulario('@perguntaId')"></textarea>
+    }
+
+    void ExibirAlternativasMultiplaEscolha(Guid formularioSecaoId, Guid perguntaId, bool obrigatorio, IEnumerable<AlternativaDTO> alternativas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom form-check-solid">
+                        <input class="form-check-input" type="radio" id="Respostas[@perguntaId].AlternativasSelecionadasIds" name="Respostas[@perguntaId].AlternativasSelecionadasIds" value="@alternativa.Id" onchange="respostasFormularioManager.validarPerguntaDoFormulario('@perguntaId')" />
+                        <div class="form-check-label text-dark">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    void ExibirAlternativasCaixaSelecao(Guid formularioSecaoId, Guid perguntaId, bool obrigatorio, IEnumerable<AlternativaDTO> alternativas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom form-check-solid">
+                        <input class="form-check-input" type="checkbox"
+                               id="Respostas[@perguntaId].AlternativasSelecionadasIds"
+                               name="Respostas[@perguntaId].AlternativasSelecionadasIds"
+                               value="@alternativa.Id"
+                               onchange="respostasFormularioManager.validarPerguntaDoFormulario('@perguntaId')" />
+                        <div class="form-check-label text-dark">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    async Task ExibirAlternativasListaSuspensa(Guid formularioSecaoId, Guid perguntaId, bool obrigatorio, IEnumerable<AlternativaDTO> alternativas)
+    {
+        var selectAlternativas = new List<SelectListItem> { new SelectListItem { Text = "Selecione uma opção", Value = "" } };
+        selectAlternativas.AddRange(alternativas.Select(alternativa => new SelectListItem { Text = alternativa.Texto, Value = alternativa.Id.ToString() }).ToList());
+        var alternativaSelecionadaId = Guid.NewGuid();
+
+        <select class="form-select" id="Respostas[@perguntaId].AlternativasSelecionadasIds" name="Respostas[@perguntaId].AlternativasSelecionadasIds" onchange="responderFormulario.respostasFormularioManager('@perguntaId')">
+            @foreach (var alternativa in selectAlternativas)
+            {
+                <option value="@alternativa.Value">@alternativa.Text</option>
+            }
+        </select>
+    }
+
+    bool IsPerguntaObjetiva(PerguntaDTO pergunta)
+    {
+        return pergunta.Tipo == "ListaSuspensa" || pergunta.Tipo == "CaixaSelecao" || pergunta.Tipo == "MultiplaEscolha";
+    }
+}
+
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Formularios
+            </li>
+            <li class="breadcrumb-item text-gray-600">
+                Responder
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="row mb-1">
+    <div class="col-12">
+        <section class="card mb-3">
+            <header class="card-header">
+                <div class="card-title m-0">
+                    <h2 class="fw-bold m-0">
+                        @Model.FormularioNome
+                    </h2>
+                </div>
+            </header>
+            <div class="card-body d-flex flex-column">
+                <span class="text-danger">* Obrigatório</span>
+            </div>
+        </section>
+    </div>
+</div>
+<form data-responder-formulario="formulario" asp-action="Responder" asp-controller="Formulario" asp-route-id="@Model.FormularioId">
+    <input type="hidden" id="FormularioId" name="FormularioId" value="@Model.FormularioId" />
+    <input type="hidden" id="ModeloId" name="ModeloId" value="@Model.FormularioModelo.Id" />
+
+    @foreach (var secao in formularioModelo.Secoes)
+    {
+        var secaoId = secao.Id;
+        @if (formularioModelo.Secoes.Count() > 1)
+        {
+            <section class="card mb-3">
+                <header class="card-header bg-primary">
+                    <div class="card-title m-0">
+                        <h3 class="fw-bold text-light m-0">
+                            @secao.Titulo
+                        </h3>
+                    </div>
+                </header>
+            </section>
+        }
+        @foreach (var pergunta in secao.Perguntas)
+        {
+            <section data-responder-formulario="pergunta" class="card mb-3" data-pergunta-id="@pergunta.Id" @(IsPerguntaObjetiva(pergunta) == true ? $"data-pergunta-total-alternativas={pergunta.Alternativas.Count().ToString()}" : "")>
+                <input type="hidden" name="Respostas.Index" value="@pergunta.Id" />
+                <input type="hidden" id="Respostas[@pergunta.Id].PerguntaId" name="Respostas[@pergunta.Id].PerguntaId" value="@pergunta.Id" />
+                <input type="hidden" id="Respostas[@pergunta.Id].Obrigatorio" name="Respostas[@pergunta.Id].Obrigatorio" value="@pergunta.Obrigatorio.ToString().ToLower()" />
+                <input type="hidden" id="Respostas[@pergunta.Id].Tipo" name="Respostas[@pergunta.Id].Tipo" value="@pergunta.Tipo" />
+
+                <header class="card-header">
+                    <div class="card-title m-0">
+                        <h5 class="fw-bold @(pergunta.Obrigatorio == true ? "required" : "") m-0">
+                            @pergunta.Enunciado
+                        </h5>
+                    </div>
+                </header>
+                <div class="card-body">
+                    <p class="mb-5">
+                        @pergunta.Descricao
+                    </p>
+                    @{
+                        ExibirCampoDeRespostaParaPergunta(pergunta);
+                    }
+                    @if (pergunta.Obrigatorio)
+                    {
+                        <div data-responder-formulario="pergunta-mensagem-obrigatoria" class="text-danger d-none fs-5 mt-4">Pergunta obrigatória</div>
+                    }
+                </div>
+            </section>
+        }
+
+    }
+    <div class="d-flex flex-md-row flex-column justify-content-md-between">
+        <a asp-action="Index" asp-controller="Home" class="btn btn-outline btn-outline-light-dark btn-color-gray-600 btn-outline-default btn-active-secondary mb-md-0 mb-3">
+            Voltar ao Início
+        </a>
+        <button data-responder-formulario="button-enviar-respostas" type="submit" class="btn btn-primary">
+            <span class="indicator-label">
+                Enviar resposta
+            </span>
+            <span class="indicator-progress">
+                Enviando resposta...<span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+            </span>
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <!--Custom libs-->
+    <script src="~/js/components/respostas/respostas-formulario-manager.js"></script>
+    <script src="~/js/components/formulario/responder-formulario.js"></script>
+
+    <script>
+        responderFormulario.inicializar();
+    </script>
+}

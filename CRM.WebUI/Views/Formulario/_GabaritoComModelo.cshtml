@@ -1,0 +1,144 @@
+﻿@using CRM.Application.DTOs.Formularios.Modelos
+@using CRM.Application.DTOs.Formularios.Respostas
+@model CRM.WebUI.ViewModels.Formularios.FormularioGabaritoComModeloVM
+
+@{
+    var totalDeSecoes = Model.Modelo.Secoes.Count();
+}
+
+@functions {
+    void ExibirPerguntaComResposta(PerguntaDTO pergunta, RespostaDTO resposta)
+    {
+        switch (pergunta.Tipo)
+        {
+            case "TextoCurto":
+            case "TextoLongo":
+                ExibirRespostaDiscursiva(resposta?.Texto);
+                break;
+
+            case "MultiplaEscolha":
+                ExibirAlternativasMultiplaEscolhaComAlternativaSelecionada(pergunta.Alternativas, resposta?.AlternativasSelecionadas);
+                break;
+
+            case "CaixaSelecao":
+                ExibirAlternativasCaixaSelecaoComAlternativasSelecionadas(pergunta.Alternativas, resposta?.AlternativasSelecionadas);
+                break;
+
+            case "ListaSuspensa":
+                ExibirAlternativasListaSuspensaComAlternativaSelecionada(resposta?.AlternativasSelecionadas);
+                break;
+        }
+    }
+
+    void ExibirRespostaDiscursiva(string texto)
+    {
+        <p class="p-3">
+            @(string.IsNullOrEmpty(texto) ? "Não respondida" : texto)
+        </p>
+    }
+
+    void ExibirAlternativasMultiplaEscolhaComAlternativaSelecionada(IEnumerable<AlternativaDTO> alternativas, IEnumerable<AlternativaDTO> alternativaSelecionadas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom">
+                        <input class="form-check-input text-dark" type="radio" value="@alternativa.Id" disabled @(AlternativaFoiSelecionada(alternativa, alternativaSelecionadas) ? "checked" : "") />
+                        <div class="form-check-label text-dark opacity-100">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    void ExibirAlternativasCaixaSelecaoComAlternativasSelecionadas(IEnumerable<AlternativaDTO> alternativas, IEnumerable<AlternativaDTO> alternativaSelecionadas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom">
+                        <input class="form-check-input" type="checkbox" value="@alternativa.Id" disabled @(AlternativaFoiSelecionada(alternativa, alternativaSelecionadas) ? "checked" : "") />
+                        <div class="form-check-label text-dark opacity-100">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    void ExibirAlternativasListaSuspensaComAlternativaSelecionada(IEnumerable<AlternativaDTO> alternativasSelecionadas)
+    {
+        var alternativaSelecionada = alternativasSelecionadas.FirstOrDefault();
+        <div class="form-control form-select form-control-solid user-select-none">
+            @alternativaSelecionada.Texto
+        </div>
+    }
+
+    bool AlternativaFoiSelecionada(AlternativaDTO alternativa, IEnumerable<AlternativaDTO> altenativasSelecionadas)
+    {
+        if (altenativasSelecionadas != null)
+        {
+            return altenativasSelecionadas.Any(selecionada => selecionada.Id == alternativa.Id);
+        }
+
+        return false;
+    }
+}
+
+
+<div class="row mb-1">
+    <div class="col-12">
+        <section class="card mb-3">
+            <div class="card-body d-flex flex-column">
+                <div class="form-group row mb-5">
+                    <div class="col-12">
+                        <label class="form-label">Respondido Em</label>
+                        <div class="form-control form-control-solid user-select-none">@Model.RespondidoEm.ToString("g")</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@foreach (var secao in Model.Modelo.Secoes)
+{
+    var secaoId = secao.Id;
+
+    @if (totalDeSecoes > 1)
+    {
+        <section class="card mb-3">
+            <header class="card-header bg-primary">
+                <div class="card-title m-0">
+                    <h3 class="fw-bold text-light m-0">
+                        @secao.Titulo
+                    </h3>
+                </div>
+            </header>
+        </section>
+    }
+
+    @foreach (var pergunta in secao.Perguntas)
+    {
+        var respostaDoGabarito = Model.GabaritoComRespostas.Respostas.FirstOrDefault(resposta => resposta.PerguntaId == pergunta.Id);
+
+        <section class="card mb-3">
+            <header class="card-header">
+                <div class="card-title m-0">
+                    <h5 class="fw-bold @(pergunta.Obrigatorio == true ? "required" : "") m-0">
+                        @pergunta.Enunciado
+                    </h5>
+                </div>
+            </header>
+            <div class="card-body">
+                <p class="mb-5">
+                    @pergunta.Descricao
+                </p>
+                @{
+                    ExibirPerguntaComResposta(pergunta, respostaDoGabarito);
+                }
+            </div>
+        </section>
+    }
+}

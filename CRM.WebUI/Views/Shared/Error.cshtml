@@ -1,0 +1,72 @@
+﻿@model CRM.Application.ViewModels.ErroViewModel
+@{
+    ViewData["Title"] = "Ocorreu um erro";
+}
+
+@{
+    if (Model == null)
+    {
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="card-title">Ops! Ocorreu um erro, mas não se preocupe. Nosso time será avisado e iremos corrigir em breve!</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="card-p mb-10">
+                    Lorem Ipsum is simply dummy text ...
+
+                    <div class="text-center px-4">
+                        <img class="mw-100 mh-300px card-rounded-bottom" alt="" src="examples.png" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="card-p">
+
+                    <div class="alert @(Model.ErroCode != 404 ? "bg-danger" : "bg-primary") d-flex flex-center flex-column py-10 px-10 px-lg-20 mb-0">
+
+                        <span class="svg-icon svg-icon-5tx svg-icon-light mb-5">
+                            @if (Model.ErroCode != 404)
+                            {
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor" />
+                                    <rect x="7" y="15.3137" width="12" height="2" rx="1" transform="rotate(-45 7 15.3137)" fill="currentColor" />
+                                    <rect x="8.41422" y="7" width="12" height="2" rx="1" transform="rotate(45 8.41422 7)" fill="currentColor" />
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor" />
+                                    <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor" />
+                                    <rect x="11" y="17" width="2" height="2" rx="1" transform="rotate(-90 11 17)" fill="currentColor" />
+                                </svg>
+                            }
+                        </span>
+
+                        <div class="text-center">
+
+                            <h1 class="fw-bold mb-5 text-white">@Html.Raw(Model.Titulo)</h1>
+
+                            <div class="separator separator-dashed @(Model.ErroCode != 404 ? "border-light-danger" : "border-light-primary") opacity-25 mb-5"></div>
+
+                            <div class="mb-9 text-white">
+                                @Html.Raw(Model.Mensagem)
+                            </div>
+
+                            <div class="d-flex flex-center flex-wrap">
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-bg-white @(Model.ErroCode != 404 ? "btn-color-danger btn-active-color-danger" : "btn-color-primary btn-active-color-primary") m-2">Voltar para o início</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,60 @@
+﻿@using CRM.Application.Interfaces
+@model IPagedList
+
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex justify-content-center align-items-center w-100 py-5">
+        <ul class="pagination pagination-circle">
+            <li class="page-item first @(Model.PageIndex == 1 ? "disabled" : "") m-1">
+                <a asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-page="1"
+                   asp-route-ps="@Model.PageSize"
+                   title="Primeira página"
+                   class="page-link">
+                    <span class="fa-light fa-angles-left"></span>
+                </a>
+            </li>
+            <li class="page-item previous @(Model.PageIndex == 1 ? "disabled" : "") m-1">
+                <a asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-page="@(Model.PageIndex - 1)"
+                   asp-route-ps="@Model.PageSize"
+                   title="Página anterior"
+                   class="page-link">
+                    <span class="fa-light fa-angle-left"></span>
+                </a>
+            </li>
+            @for (int pagina = 1; pagina <= Model.TotalPages; pagina++)
+            {
+                <li class="page-item @(Model.PageIndex == pagina ? "active" : "") m-1">
+                    <a asp-action="@Model.ActionName"
+                       asp-controller="@Model.ControllerName"
+                       asp-route-page="@pagina"
+                       asp-route-ps="@Model.PageSize"
+                       class="page-link">@pagina</a>
+                </li>
+            }
+            <li class="page-item next @(Model.PageIndex == Model.TotalPages ? "disabled" : "") m-1">
+                <a asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-page="@(Model.PageIndex + 1)"
+                   asp-route-ps="@Model.PageSize"
+                   title="Próxima página"
+                   class="page-link">
+                    <span class="fa-light fa-angle-right"></span>
+                </a>
+            </li>
+            <li class="page-item last @(Model.PageIndex == Model.TotalPages ? "disabled" : "") m-1">
+                <a asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-page="@Model.TotalPages"
+                   asp-route-ps="@Model.PageSize"
+                   title="Última página"
+                   class="page-link">
+                    <span class="fa-light fa-angles-right"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+}

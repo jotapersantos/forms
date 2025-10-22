@@ -1,0 +1,142 @@
+﻿@using CRM.Application.DTOs.Formularios.Modelos
+@using CRM.Application.DTOs.Formularios.Respostas
+@model CRM.Application.DTOs.Formularios.Modelos.ModeloDTO
+
+@{
+    ViewData["Title"] = "Pré Visualizar Modelo";
+    var totalDeSecoes = Model.Secoes.Count();
+}
+
+@functions {
+    void ExibirPerguntaComResposta(PerguntaDTO pergunta)
+    {
+        switch (pergunta.Tipo)
+        {
+            case "TextoCurto":
+                <input class="form-control" type="text" disabled ) />
+                break;
+            case "TextoLongo":
+                <textarea class="form-control" type="checkbox" disabled ></textarea>
+                break;
+
+            case "MultiplaEscolha":
+                ExibirAlternativasMultiplaEscolhaComAlternativaSelecionada(pergunta.Alternativas);
+                break;
+
+            case "CaixaSelecao":
+                ExibirAlternativasCaixaSelecaoComAlternativasSelecionadas(pergunta.Alternativas);
+                break;
+
+            case "ListaSuspensa":
+                ExibirAlternativasListaSuspensaComAlternativaSelecionada(pergunta.Alternativas);
+                break;
+        }
+    }
+
+    void ExibirAlternativasMultiplaEscolhaComAlternativaSelecionada(IEnumerable<AlternativaDTO> alternativas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom">
+                        <input class="form-check-input text-dark" type="radio" value="@alternativa.Id" disabled ) />
+                        <div class="form-check-label text-dark opacity-100">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    void ExibirAlternativasCaixaSelecaoComAlternativasSelecionadas(IEnumerable<AlternativaDTO> alternativas)
+    {
+        @foreach (var alternativa in alternativas)
+        {
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="form-check form-check-custom">
+                        <input class="form-check-input" type="checkbox" value="@alternativa.Id" disabled />
+                        <div class="form-check-label text-dark opacity-100">@alternativa.Texto</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    async Task ExibirAlternativasListaSuspensaComAlternativaSelecionada(IEnumerable<AlternativaDTO> alternativas)
+    {
+        <select id="dropdown-alternativas" class="form-select form-control-solid w-100">
+            @foreach(var alternativa in alternativas)
+            {
+                <option value="@alternativa.Id" >@alternativa.Texto</option>
+            }
+        </select>
+    }
+}
+
+<div class="modal-header">
+    <h2 class="modal-title">@ViewData["Title"]</h2>
+
+    <div class="btn btn-icon btn-active-light-primary" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fa-light fa-xmark fs-1"></i>
+    </div>
+</div>
+
+<div class="modal-body">
+
+    <div class="row mb-1">
+        <div class="col-12">
+            <section class="card mb-3">
+                <header class="card-header">
+                    <div class="card-title m-0">
+                        <h2 class="fw-bold m-0">
+                            @Model.Titulo
+                        </h2>
+                    </div>
+                </header>
+            </section>
+            
+            @foreach (var secao in Model.Secoes)
+            {
+                var secaoId = secao.Id;
+
+                @if (totalDeSecoes > 1)
+                {
+                    <section class="card mb-3">
+                        <header class="card-header bg-primary">
+                            <div class="card-title m-0">
+                                <h3 class="fw-bold text-light m-0">
+                                    @secao.Titulo
+                                </h3>
+                            </div>
+                        </header>
+                    </section>
+                }
+
+                @foreach (var pergunta in secao.Perguntas)
+                {
+                    <section class="card mb-3">
+                        <header class="card-header">
+                            <div class="card-title m-0">
+                                <h5 class="fw-bold @(pergunta.Obrigatorio == true ? "required" : "") m-0">
+                                    @pergunta.Enunciado
+                                </h5>
+                            </div>
+                        </header>
+                        <div class="card-body">
+                            <p class="mb-5">
+                                @pergunta.Descricao
+                            </p>
+                            @{
+                                ExibirPerguntaComResposta(pergunta);
+                            }
+                        </div>
+                    </section>
+                }
+            }
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fechar</button>
+</div>

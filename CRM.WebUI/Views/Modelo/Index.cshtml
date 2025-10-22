@@ -1,0 +1,395 @@
+﻿@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "Modelos de Formulário";
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+<div class="toolbar mb-5">
+    <div class="page-title d-flex flex-column me-3">
+
+        <h1 class="d-flex text-gray-900 fw-bold my-1 fs-3">@ViewData["Title"]</h1>
+
+        <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+
+            <li class="breadcrumb-item text-gray-600">
+                Cadastros
+            </li>
+
+            <li class="breadcrumb-item text-gray-500">
+                Formularios
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="content flex-column-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title m-0">
+                <h2 class="fw-bold m-0">
+                    @ViewData["Title"]
+                </h2>
+            </div>
+
+            <div class="d-flex align-items-center py-2 py-md-1">
+                <a class="btn btn-primary" asp-controller="Modelo" asp-action="Create">Novo</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="d-flex flex-stack mb-5">
+                        <div class="d-flex align-items-center position-relative my-1">
+                            <i class="fa-light fa-magnifying-glass fs-2 position-absolute ms-6"></i>
+                            <input type="text" data-kt-docs-table-filter="search" class="form-control form-control-solid w-250px ps-15" placeholder="Pesquisar" />
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="datatable" class="table table-rounded table-striped border gy-7 gs-7">
+                            <thead>
+                                <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+                                    <th scope="col" class="text-left">Título</th>
+                                    <th scope="col" class="text-left">Ativo?</th>
+                                    <th scope="col" class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toastr-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "1500",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    </script>
+    <script>
+        function excluirModelo(modeloId) {
+            Swal.fire({
+                title: "Você tem certeza que deseja excluir o modelo de formulário?",
+                text: "Cuidado! Esse processo é irreversível.",
+                icon: "question",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Sim, excluir!",
+                cancelButtonText: "Não, cancelar.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                    cancelButton: "btn btn-primary"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = '@Url.Action("DeleteConfirmed", "Modelo", new { id = Guid.Empty })'.replace('@Guid.Empty', modeloId);
+                    return fetch(url, {
+                        method: "POST",
+                        headers: {
+                            '@tokenSet.HeaderName': '@tokenSet.RequestToken'
+                        }
+                    }).then(response => response.json())
+                    .then((response) => {
+                        let messageComplete = response.messages.join("\n");
+
+                        
+
+                        if (response.isSuccess === true) {
+                            toastr.success(messageComplete, { timeOut: 1500 });
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            throw new Error(messageComplete);
+                        }
+                    }).catch((error) => {
+                        toastr.error(error.message, { timeOut: 3000 });
+                    });
+                }
+            });
+        }
+    </script>
+
+    <script>
+        var KTDatatablesServerSide = function () {
+            var table;
+            var dt;
+
+            var initDatatable = function () {
+                dt = $("#datatable").DataTable({
+                    language: {
+                        url: '/terceiros/datatable/dist/json/pt_br.json',
+                        lengthMenu: "Show _MENU_",
+                    },
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    searching: true,
+                    ajax: {
+                        url: '@Url.Action("ObterModelos", "Modelo")',
+                        type: "POST",
+                    },
+                    columns: [
+                        { "data": "titulo" },
+                        { "data": { "id": "id", "ativo": "ativo" } },
+                        { "data": { "id": "id", "ativo": "ativo", "modeloUtilizado": "modeloUtilizado" } }
+                    ],
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            targets: [0, 1, 2],
+                        },
+                        {
+                            "targets": 0,
+                            "render": function (data, type, row, meta) {
+                                return `<p>${data ? data.substring(0, 50) : ""}</p> `;
+                            }
+                        },
+                        {
+                            "targets": 1,
+                            "render": function (data, type, row, meta) {
+                                return `${data.ativo ? '<span id="spanStatus_' + data.id + '" class="badge badge badge-light-primary">Ativo</span>' : '<span id="spanStatus_' + data.id + '" class="badge badge badge-light-dark">Inativo</span>'} `;
+                            }
+                        },
+                        {
+                            "targets": 2,
+                            "render": function (data, type, row, meta) {
+                                return `<div class="d-flex justify-content-center">
+                                                    <button href="#" class="btn btn-icon align-items-center btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                                                        <i class="fa-solid fa-grip-lines fs-1"></i>
+                                                    </button>
+
+                                                    <div class="menu menu-sub menu-sub-dropdown" data-kt-menu="true" id="kt_menu_61de119177a73">
+                                                        <div class="p-4">
+                                                            ${criarListaDeBotoesDoModelo(data)}
+                                                        </<div>
+                                                    </div>
+                                                </div>`;
+                            }
+                        }
+                    ],
+                    order: [
+                        [1, "desc"]
+                    ]
+                });
+
+                table = dt.$;
+
+                dt.on('draw', function () {
+                    KTMenu.createInstances();
+                });
+            }
+
+            var handleSearchDatatable = function () {
+                const filterSearch = document.querySelector('[data-kt-docs-table-filter="search"]');
+                filterSearch.addEventListener('keyup', function (e) {
+                    dt.search(e.target.value).draw();
+                });
+            }
+
+            return {
+                init: function () {
+                    initDatatable();
+                    handleSearchDatatable();
+                }
+            }
+        }();
+
+        KTUtil.onDOMContentLoaded(function () {
+            KTDatatablesServerSide.init();
+        });
+
+
+        function criarBotaoToggleAtivoHtml(data) {
+
+            const botao = document.createElement('button');
+            botao.className = "btn btn-outline btn-outline-primary border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center";
+            botao.id = "toggleAtivar_" + data.id;
+            botao.setAttribute('data-bs-toggle', 'tooltip');
+            botao.setAttribute('data-bs-animation', 'true');
+            botao.setAttribute('data-bs-placement', 'top');
+            const icone = document.createElement('span');
+
+            if (data.ativo) {
+                botao.setAttribute('title', 'Desativar');
+                icone.className = `fa-light fa-xmark fa-lg`;
+                botao.setAttribute('onclick', `desativarModelo('${data.id}')`);
+            } else {
+                botao.setAttribute('title', 'Ativar');
+                icone.className = `fa-light  fa-check fa-lg`;
+                botao.setAttribute('onclick', `ativarModelo('${data.id}')`);
+            }
+
+            botao.appendChild(icone);
+
+            return botao;
+        }
+
+        function ativarModelo(modeloId) {
+            const urlAtivarModelo = '@Url.Action("Ativar", "Modelo", new { id = Guid.Empty })'.replace('@Guid.Empty', modeloId);
+
+            fetch(urlAtivarModelo, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    '@tokenSet.HeaderName': '@tokenSet.RequestToken'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP status ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.isSuccess) {
+                        const spanStatus = document.getElementById("spanStatus_" + modeloId);
+                        spanStatus.classList.remove('badge-light-dark');
+                        spanStatus.classList.add('badge-light-primary');
+                        spanStatus.innerHTML = "Ativo";
+
+
+                        const botao = document.getElementById("toggleAtivar_" + modeloId);
+                        const icone = botao.querySelector('span');
+                        icone.classList.remove('fa-check');
+                        icone.classList.add('fa-xmark');
+
+                        botao.setAttribute('title', 'Desativar');
+                        botao.setAttribute('data-bs-original-title', 'Desativar');
+                        botao.setAttribute('onclick', `desativarModelo('${modeloId}')`);
+                        toastr.success(data.messages[0], 'Sucesso');
+                    } else {
+                        toastr.error(data.messages[0], 'Erro');
+                    };
+                })
+                .catch(error => toastr.error('Não foi possível desativar o modelo: ' + error, 'Erro'));
+        }
+
+        function desativarModelo(modeloId) {
+            const urlAtivarModelo = '@Url.Action("Desativar", "Modelo", new { id = Guid.Empty })'.replace('@Guid.Empty', modeloId);
+
+            fetch(urlAtivarModelo, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    '@tokenSet.HeaderName': '@tokenSet.RequestToken'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP status ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.isSuccess) {
+                        const spanStatus = document.getElementById("spanStatus_" + modeloId);
+                        spanStatus.classList.remove('badge-light-primary');
+                        spanStatus.classList.add('badge-light-dark');
+                        spanStatus.innerHTML = "Inativo";
+
+                        const botao = document.getElementById("toggleAtivar_" + modeloId);
+                        const icone = botao.querySelector('span');
+                        icone.classList.remove('fa-xmark');
+                        icone.classList.add('fa-check');
+
+                        botao.setAttribute('title', 'Ativar');
+                        botao.setAttribute('data-bs-original-title', 'Ativar');
+                        botao.setAttribute('onclick', `ativarModelo('${modeloId}')`);
+                        toastr.success(data.messages[0], 'Sucesso');
+                    } else {
+                        toastr.error(data.messages[0], 'Erro');
+                    };
+                })
+                .catch(error => toastr.error('Não foi possível desativar o modelo: ' + error, 'Erro'));
+        }
+
+        function createButtonEditModelo(modeloId) {
+            const urlEditarModelo = '@Url.Action("Edit", "Modelo", new { id = Guid.Empty })'.replace('@Guid.Empty', modeloId);
+
+            return ` <a class="btn btn-outline btn-outline-primary border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                href="${urlEditarModelo}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Editar">
+                                                <span class="fa-light fa-pen-to-square fa-lg"></span>
+                                            </a>`;
+        }
+
+        function createButtonDeleteModelo(modeloId) {
+            return `<button class="btn btn-outline btn-outline-danger border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                                        onclick="excluirModelo('${modeloId}')"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-animation="true"
+                                                data-bs-placement="top"
+                                                title="Excluir">
+                                                <span class="fa-light fa-trash-can fa-lg"></span>
+                                            </button>`;
+        }
+
+        function createButtonCreateFromModelo(modeloId) {
+            const urlCriarAPartirDeModelo = '@Url.Action("CreateFrom", "Modelo", new { modeloId = Guid.Empty })'.replace('@Guid.Empty', modeloId);
+
+            return `<a class="btn btn-outline btn-outline-info border border-0 w-40px h-40px d-flex flex-row justify-content-center align-items-center"
+                                        href="${urlCriarAPartirDeModelo}"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-animation="true"
+                                        data-bs-placement="top"
+                                        title="Criar a partir deste modelo">
+                                        <span class="fa-light fa-copy fa-lg"></span>
+                                    </a>`;
+        }
+
+        function criarListaDeBotoesDoModelo(data) {
+            const listaBotoesDeAcao = document.createElement("div");
+            listaBotoesDeAcao.classList.add("d-flex", "align-content-end");
+
+            const botaoToggleAtivo = criarBotaoToggleAtivoHtml(data);
+            listaBotoesDeAcao.appendChild(botaoToggleAtivo);
+
+            const botaoCreateFrom = converterTextoParaElementoHTML(createButtonCreateFromModelo(data.id));
+            listaBotoesDeAcao.appendChild(botaoCreateFrom);
+
+            if (data.modeloUtilizado === false) {
+                const botaoEdit = converterTextoParaElementoHTML(createButtonEditModelo(data.id));
+                listaBotoesDeAcao.appendChild(botaoEdit);
+
+                const botaoDelete = converterTextoParaElementoHTML(createButtonDeleteModelo(data.id));
+                listaBotoesDeAcao.appendChild(botaoDelete);
+            }
+
+            return listaBotoesDeAcao.outerHTML;
+        }
+
+        function converterTextoParaElementoHTML(textoHTML) {
+            const tempDiv = document.createElement("div");
+
+            tempDiv.innerHTML = textoHTML;
+
+            const elementoHTML = tempDiv.firstElementChild;
+
+            return elementoHTML;
+        }
+    </script>
+}

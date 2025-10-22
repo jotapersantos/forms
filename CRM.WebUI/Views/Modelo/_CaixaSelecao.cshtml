@@ -1,0 +1,77 @@
+﻿@using CRM.Domain.Enums
+@using CRM.WebUI.ViewModels.Formularios
+@model CRM.WebUI.ViewModels.Formularios.PerguntaComTipoVM
+
+@{
+    var perguntaId = Guid.NewGuid();
+}
+
+<div class="mb-5" data-formulario-modelo="pergunta" data-id="@perguntaId" data-secao-id="@Model.SecaoIndex">
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas.Index" value="@perguntaId" />
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].ValidacaoAtiva" value="true" />
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Ordem" value="1" />
+    <input type="hidden" name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Tipo" value="@Model.Tipo" />
+    <section class="card">
+        <header class="card-header">
+            <div class="w-100 d-flex justify-content-between align-items-center">
+                <div class="card-title m-0">
+                    <h4 class="fw-bold m-0">Caixa de Seleção</h4>
+                </div>
+                <div class="d-flex align-items-center py-2 py-md-1">
+                    <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px me-2" onclick="formularioModeloCadastro.duplicarPergunta('@perguntaId')">
+                        <i class="fa-light fa-copy"></i>
+                        Duplicar Pergunta
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline btn-outline-danger w-175px" onclick="formularioModeloCadastro.removerPergunta('@perguntaId')">
+                        <i class="fa-light fa-minus"></i>
+                        Remover Pergunta
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="form-group row mb-5">
+                <div class="col-12">
+                    <label for="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Enunciado" class="form-label required">Enunciado</label>
+                    <input id="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Enunciado"
+                           name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Enunciado"
+                           class="form-control maxlength" data-val="true"
+                           data-val-required="O campo Enunciado é obrigatório."
+                           data-val-length="O campo Enunciado deve ter entre 3 e 255 caracteres"
+                           data-val-length-max="255"
+                           data-val-length-min="3"
+                           maxlength="255" />
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Enunciado" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+            <div class="form-group row mb-5">
+                <div class="col-12">
+                    <label for="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Descricao" class="form-label">Descrição</label>
+                    <textarea id="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Descricao"
+                              name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Descricao"
+                              class="form-control autosize-custom maxlength" rows="1" data-val="true"
+                              data-val-length="O campo Descrição deve ter no máximo 1000 caracteres"
+                              data-val-length-max="1000"
+                              maxlength="1000"></textarea>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Descricao" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-5">
+                <h5 class="fw-bold required">Alternativas</h5>
+                <button type="button" class="btn btn-sm btn-outline btn-outline-primary w-175px" onclick="formularioModeloCadastro.addAlternativa('@perguntaId', '@Model.SecaoIndex', 'CaixaSelecao')" data-formulario-modelo="secao-item-area-editavel">
+                    <i class="fa-light fa-plus"></i>
+                    Nova Alternativa
+                </button>
+            </div>
+            <div data-formulario-modelo="alternativa-container">
+                <partial name="_AlternativaCaixaSelecao" model="new AlternativaDaPerguntaComTipoVM{ SecaoIndex = Model.SecaoIndex, PerguntaIndex = perguntaId, Tipo = Model.Tipo}" />
+            </div>
+        </div>
+        <footer class="card-footer d-flex justify-content-end" data-formulario-modelo="pergunta-editavel">
+            <div class="form-check form-switch form-check-custom form-check-solid">
+                <label class="form-check-label me-2" for="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Obrigatorio">Obrigatório</label>
+                <input class="form-check-input h-30px w-50px" type="checkbox" onchange="formularioModeloCadastro.toggleCheckboxValue(this)" id="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Obrigatorio" name="Secoes[@Model.SecaoIndex].Perguntas[@perguntaId].Obrigatorio" value="false" />
+            </div>
+        </footer>
+    </section>
+</div>
